@@ -2,6 +2,7 @@
 
 - On X11, EINTR while polling for events no longer causes a panic. Instead it will be treated as a spurious wakeup.
 - On X11, if RANDR based scale factor is higher than 20 reset it to 1
+- On macOS, fix an issue that prevented the menu bar from showing in borderless fullscreen mode.
 
 # 0.25.0 (2021-05-15)
 
