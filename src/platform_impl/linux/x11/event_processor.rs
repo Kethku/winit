@@ -173,7 +173,6 @@ impl<T: 'static> EventProcessor<T> {
                         .expect("Failed to call XRefreshKeyboardMapping");
 
                     self.mod_keymap.reset_from_x_connection(&wt.xconn);
-                    self.device_mod_state.update_keymap(&self.mod_keymap);
                 }
             }
 
@@ -834,12 +833,10 @@ impl<T: 'static> EventProcessor<T> {
                                 event: Focused(true),
                             });
 
-                            if !modifiers.is_empty() {
-                                callback(Event::WindowEvent {
-                                    window_id,
-                                    event: WindowEvent::ModifiersChanged(modifiers),
-                                });
-                            }
+                            callback(Event::WindowEvent {
+                                window_id,
+                                event: WindowEvent::ModifiersChanged(modifiers),
+                            });
 
                             // The deviceid for this event is for a keyboard instead of a pointer,
                             // so we have to do a little extra work.
@@ -881,8 +878,17 @@ impl<T: 'static> EventProcessor<T> {
                             .unfocus(xev.event)
                             .expect("Failed to unfocus input context");
 
+                        let modifiers = ModifiersState::empty();
+
+                        self.device_mod_state.update_state(&modifiers, None);
+
                         if self.active_window.take() == Some(xev.event) {
                             let window_id = mkwid(xev.event);
+
+                            callback(Event::WindowEvent {
+                                window_id,
+                                event: WindowEvent::ModifiersChanged(modifiers),
+                            });
 
                             // Issue key release events for all pressed keys
                             Self::handle_pressed_keys(
@@ -894,11 +900,6 @@ impl<T: 'static> EventProcessor<T> {
                                 &mut self.device_mod_state,
                                 &mut callback,
                             );
-
-                            callback(Event::WindowEvent {
-                                window_id,
-                                event: WindowEvent::ModifiersChanged(ModifiersState::empty()),
-                            });
 
                             callback(Event::WindowEvent {
                                 window_id,
@@ -1098,11 +1099,7 @@ impl<T: 'static> EventProcessor<T> {
                         if let Some(modifier) =
                             self.mod_keymap.get_modifier(keycode as ffi::KeyCode)
                         {
-                            self.device_mod_state.key_event(
-                                state,
-                                keycode as ffi::KeyCode,
-                                modifier,
-                            );
+                            self.device_mod_state.key_event(state, modifier);
 
                             let new_modifiers = self.device_mod_state.modifiers();
 
@@ -1264,11 +1261,7 @@ impl<T: 'static> EventProcessor<T> {
             let text_with_all_modifiers = ker.text_with_all_modifiers();
 
             if let Some(modifier) = mod_keymap.get_modifier(keycode as ffi::KeyCode) {
-                device_mod_state.key_event(
-                    ElementState::Pressed,
-                    keycode as ffi::KeyCode,
-                    modifier,
-                );
+                device_mod_state.key_event(state, modifier);
             }
 
             callback(Event::WindowEvent {
