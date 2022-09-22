@@ -89,7 +89,7 @@ pub fn new_view(ns_window: id, accepts_first_mouse: bool) -> (IdRef, Weak<Mutex<
         modifiers: Default::default(),
         phys_modifiers: Default::default(),
         tracking_rect: None,
-        accepts_first_mouse: accepts_first_mouse,
+        accepts_first_mouse,
     };
     unsafe {
         // This is free'd in `dealloc`
