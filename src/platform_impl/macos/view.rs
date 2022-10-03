@@ -66,6 +66,7 @@ pub(super) struct ViewState {
     pub(super) modifiers: ModifiersState,
     phys_modifiers: HashSet<KeyCode>,
     tracking_rect: Option<NSInteger>,
+    accepts_first_mouse: bool,
 }
 
 impl ViewState {
@@ -74,7 +75,7 @@ impl ViewState {
     }
 }
 
-pub fn new_view(ns_window: id) -> (IdRef, Weak<Mutex<CursorState>>) {
+pub fn new_view(ns_window: id, accepts_first_mouse: bool) -> (IdRef, Weak<Mutex<CursorState>>) {
     let cursor_state = Default::default();
     let cursor_access = Arc::downgrade(&cursor_state);
     let state = ViewState {
@@ -88,6 +89,7 @@ pub fn new_view(ns_window: id) -> (IdRef, Weak<Mutex<CursorState>>) {
         modifiers: Default::default(),
         phys_modifiers: Default::default(),
         tracking_rect: None,
+        accepts_first_mouse,
     };
     unsafe {
         // This is free'd in `dealloc`
@@ -1174,6 +1176,11 @@ extern "C" fn wants_key_down_for_event(_this: &Object, _sel: Sel, _event: id) ->
     YES
 }
 
-extern "C" fn accepts_first_mouse(_this: &Object, _sel: Sel, _event: id) -> BOOL {
-    YES
+extern "C" fn accepts_first_mouse(this: &Object, _sel: Sel, _event: id) -> BOOL {
+    unsafe {
+        let state_ptr: *const c_void = *this.get_ivar("winitState");
+        let state = &*(state_ptr as *const ViewState);
+
+        state.accepts_first_mouse as BOOL
+    }
 }
