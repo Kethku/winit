@@ -15,10 +15,13 @@ use crate::{
     dpi::{PhysicalPosition, PhysicalSize},
     event::{DeviceEvent, ElementState, Event, KeyEvent, RawKeyEvent, TouchPhase, WindowEvent},
     event_loop::EventLoopWindowTarget as RootELW,
-    keyboard::ModifiersState,
-    platform_impl::platform::{
-        common::{keymap, xkb_state::KbState},
-        KeyEventExtra,
+    keyboard::{Key, ModifiersState},
+    platform_impl::{
+        platform::{
+            common::{keymap, xkb_state::KbState},
+            KeyEventExtra,
+        },
+        x11::util::modifiers::{self, Modifier},
     },
 };
 
@@ -1064,6 +1067,22 @@ impl<T: 'static> EventProcessor<T> {
                                     is_synthetic: false,
                                 },
                             });
+                            let modifiers = self.device_mod_state.modifiers();
+                            if logical_key == Key::Super && state == ElementState::Released {
+                                let mut new_modifiers = modifiers;
+                                modifiers::set_modifier(&mut new_modifiers, Modifier::Logo, false);
+                                self.device_mod_state.update_state(&new_modifiers, None);
+                                dbg!(modifiers);
+                                dbg!(new_modifiers);
+                                if modifiers != new_modifiers {
+                                    if let Some(window_id) = self.active_window {
+                                        callback(Event::WindowEvent {
+                                            window_id: mkwid(window_id),
+                                            event: WindowEvent::ModifiersChanged(new_modifiers),
+                                        });
+                                    }
+                                }
+                            }
                         }
                     }
 

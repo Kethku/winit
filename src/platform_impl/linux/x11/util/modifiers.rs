@@ -180,7 +180,7 @@ fn get_modifier(state: &ModifiersState, modifier: Modifier) -> bool {
     }
 }
 
-fn set_modifier(state: &mut ModifiersState, modifier: Modifier, value: bool) {
+pub fn set_modifier(state: &mut ModifiersState, modifier: Modifier, value: bool) {
     match modifier {
         Modifier::Alt => state.set(ModifiersState::ALT, value),
         Modifier::Ctrl => state.set(ModifiersState::CONTROL, value),
