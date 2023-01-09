@@ -1067,19 +1067,33 @@ impl<T: 'static> EventProcessor<T> {
                                     is_synthetic: false,
                                 },
                             });
-                            let modifiers = self.device_mod_state.modifiers();
-                            if logical_key == Key::Super && state == ElementState::Released {
-                                let mut new_modifiers = modifiers;
-                                modifiers::set_modifier(&mut new_modifiers, Modifier::Logo, false);
-                                self.device_mod_state.update_state(&new_modifiers, None);
-                                dbg!(modifiers);
-                                dbg!(new_modifiers);
-                                if modifiers != new_modifiers {
-                                    if let Some(window_id) = self.active_window {
-                                        callback(Event::WindowEvent {
-                                            window_id: mkwid(window_id),
-                                            event: WindowEvent::ModifiersChanged(new_modifiers),
-                                        });
+
+                            if state == ElementState::Released {
+                                let released_modifier = match logical_key {
+                                    Key::Super => Some(Modifier::Logo),
+                                    Key::Alt => Some(Modifier::Alt),
+                                    Key::Shift => Some(Modifier::Shift),
+                                    Key::Control => Some(Modifier::Ctrl),
+                                    _ => None,
+                                };
+                                if let Some(modifier_key) = released_modifier {
+                                    let modifiers = self.device_mod_state.modifiers();
+                                    let mut new_modifiers = modifiers;
+                                    modifiers::set_modifier(
+                                        &mut new_modifiers,
+                                        modifier_key,
+                                        false,
+                                    );
+                                    self.device_mod_state.update_state(&new_modifiers, None);
+                                    dbg!(modifiers);
+                                    dbg!(new_modifiers);
+                                    if modifiers != new_modifiers {
+                                        if let Some(window_id) = self.active_window {
+                                            callback(Event::WindowEvent {
+                                                window_id: mkwid(window_id),
+                                                event: WindowEvent::ModifiersChanged(new_modifiers),
+                                            });
+                                        }
                                     }
                                 }
                             }
