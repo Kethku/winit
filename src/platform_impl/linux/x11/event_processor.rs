@@ -1085,8 +1085,6 @@ impl<T: 'static> EventProcessor<T> {
                                         false,
                                     );
                                     self.device_mod_state.update_state(&new_modifiers, None);
-                                    dbg!(modifiers);
-                                    dbg!(new_modifiers);
                                     if modifiers != new_modifiers {
                                         if let Some(window_id) = self.active_window {
                                             callback(Event::WindowEvent {
