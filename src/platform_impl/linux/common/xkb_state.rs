@@ -17,7 +17,8 @@ use x11_dl::xlib_xcb::xcb_connection_t;
 use xkbcommon_dl::x11::XKBCOMMON_X11_HANDLE as XKBXH;
 
 use xkbcommon_dl::{
-    self as ffi, xkb_state_component, XKBCOMMON_COMPOSE_HANDLE as XKBCH, XKBCOMMON_HANDLE as XKBH,
+    self as ffi, xkb_state_component, XKBCOMMON_COMPOSE_HANDLE as XKBCH,
+    XKBCOMMON_HANDLE as XKBH,
 };
 
 use crate::{
@@ -310,9 +311,11 @@ impl KbState {
             )
         };
         assert_ne!(keymap, ptr::null_mut());
-        me.xkb_keymap = keymap;
 
-        unsafe { me.post_init(keymap) };
+        unsafe {
+            let state = (XKBXH.xkb_x11_state_new_from_device)(keymap, connection, core_keyboard_id);
+            me.post_init_with_state(keymap, state)
+        };
 
         Ok(me)
     }
@@ -392,6 +395,14 @@ impl KbState {
 
     pub(crate) unsafe fn post_init(&mut self, keymap: *mut ffi::xkb_keymap) {
         let state = (XKBH.xkb_state_new)(keymap);
+        self.post_init_with_state(keymap, state);
+    }
+
+    pub(crate) unsafe fn post_init_with_state(
+        &mut self,
+        keymap: *mut ffi::xkb_keymap,
+        state: *mut ffi::xkb_state,
+    ) {
         self.xkb_keymap = keymap;
         self.xkb_state = state;
         self.mods_state.update_with(state);
