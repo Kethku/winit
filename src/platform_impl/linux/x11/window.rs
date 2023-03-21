@@ -1319,6 +1319,11 @@ impl UnownedWindow {
     }
 
     #[inline]
+    pub fn xlib_xconnection(&self) -> Arc<XConnection> {
+        Arc::clone(&self.xconn)
+    }
+
+    #[inline]
     pub fn xlib_window(&self) -> c_ulong {
         self.xwindow
     }

@@ -185,7 +185,7 @@ impl MwmHints {
     }
 }
 
-pub(crate) struct NormalHints<'a> {
+pub struct NormalHints<'a> {
     size_hints: XSmartPointer<'a, ffi::XSizeHints>,
 }
 

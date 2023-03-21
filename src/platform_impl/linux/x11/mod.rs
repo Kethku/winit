@@ -12,10 +12,9 @@ mod xdisplay;
 pub(crate) use self::{
     monitor::{MonitorHandle, VideoMode},
     window::UnownedWindow,
-    xdisplay::XConnection,
 };
 
-pub use self::xdisplay::{XError, XNotSupported};
+pub use self::xdisplay::{XConnection, XError, XNotSupported};
 
 use std::{
     cell::{Cell, RefCell},

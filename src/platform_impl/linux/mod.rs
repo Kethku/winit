@@ -20,9 +20,9 @@ use once_cell::sync::Lazy;
 use raw_window_handle::{RawDisplayHandle, RawWindowHandle};
 
 #[cfg(x11_platform)]
-pub use self::x11::XNotSupported;
+pub use self::x11::{XConnection, XNotSupported};
 #[cfg(x11_platform)]
-use self::x11::{ffi::XVisualInfo, util::WindowType as XWindowType, XConnection, XError};
+use self::x11::{ffi::XVisualInfo, util::WindowType as XWindowType, XError};
 #[cfg(x11_platform)]
 use crate::platform::x11::XlibErrorHook;
 use crate::{

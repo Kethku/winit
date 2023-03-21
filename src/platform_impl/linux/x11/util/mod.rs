@@ -49,7 +49,7 @@ where
 }
 
 #[must_use = "This request was made asynchronously, and is still in the output buffer. You must explicitly choose to either `.flush()` (empty the output buffer, sending the request now) or `.queue()` (wait to send the request, allowing you to continue to add more requests without additional round-trips). For more information, see the documentation for `util::flush_requests`."]
-pub(crate) struct Flusher<'a> {
+pub struct Flusher<'a> {
     xconn: &'a XConnection,
 }
 
