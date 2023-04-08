@@ -541,7 +541,8 @@ impl KbdHandler {
                 _ => unreachable!(),
             };
 
-            let mut ker = state.process_key_event(key + 8, key_state);
+            let keycode = key + 8;
+            let mut ker = state.process_key_event(keycode, key_state);
 
             let physical_key = ker.keycode();
             let (logical_key, location) = ker.key();
@@ -549,7 +550,7 @@ impl KbdHandler {
             let (key_without_modifiers, _) = ker.key_without_modifiers();
             let text_with_all_modifiers = ker.text_with_all_modifiers();
 
-            let repeats = unsafe { state.key_repeats(key) };
+            let repeats = unsafe { state.key_repeats(keycode) };
 
             (
                 physical_key,
